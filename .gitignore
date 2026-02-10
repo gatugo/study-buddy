@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.zip
+*.rar
+01_active_lab/
+00_inbox/

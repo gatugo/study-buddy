@@ -1,0 +1,8 @@
+00_inbox/
+02_knowledge_base/
+scripts/
+.git/
+**/*.zip
+**/*.pdf
+**/*.mp4
+.env
