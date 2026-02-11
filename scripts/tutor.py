@@ -277,6 +277,12 @@ class HybridTutor:
     # ── Commands ─────────────────────────────────────────────────
 
     def show_models(self):
+        if self.mode == "no-ai":
+            print("\n┌─────────────────────────────────────")
+            print("│ Mode:         📂 FILE ONLY (No AI)")
+            print("│ Available:    scan, read")
+            print("└─────────────────────────────────────")
+            return
         mode_label = "☁️ CLOUD" if self.mode == "cloud" else "🧠 LOCAL"
         print(f"\n┌─────────────────────────────────────")
         print(f"│ Mode:         {mode_label}")
@@ -286,12 +292,15 @@ class HybridTutor:
 
     def show_help(self):
         print("\n💡 Commands:")
-        print("  (just type)           → Ask any text/code question")
         print("  read <path>           → Smart-read a file (PDF, code, text)")
-        print("  img <path> <question> → Send an image to the vision brain")
         print("  scan                  → List all files in your workspace")
-        print("  RESCUE                → Get full working solution immediately")
-        print("  switch                → Toggle Cloud ↔ Local mode")
+        if self.mode != "no-ai":
+            print("  (just type)           → Ask any text/code question")
+            print("  img <path> <question> → Send an image to the vision brain")
+            print("  RESCUE                → Get full working solution immediately")
+            print("  switch                → Toggle Cloud ↔ Local mode")
+        else:
+            print("  connect               → Connect to an AI brain")
         print("  models                → Show active model configuration")
         print("  help                  → Show this help")
         print("  quit                  → Exit the tutor")
@@ -303,13 +312,9 @@ class HybridTutor:
 
     # ── Main Loop ────────────────────────────────────────────────
 
-    def start(self):
-        print("🤖 Antigravity Tutor (Smart Engine v2)")
-        print("   Text Brain  → code & reasoning")
-        print("   Vision Brain → images, OCR, screenshots")
-        print("   File Reader → PDFs, code, text (instant)\n")
-
-        choice = input("Select Brain: [1] Gemini Flash (Cloud)  [2] Llama + Moondream (Local): ")
+    def connect_brain(self):
+        """Brain selection menu — can be called at startup or via 'connect' command."""
+        choice = input("Select Brain: [1] Gemini Flash (Cloud)  [2] Llama + Moondream (Local)  [3] No AI (Files Only): ")
         if choice == '1':
             if self.setup_gemini():
                 self.mode = "cloud"
@@ -317,9 +322,21 @@ class HybridTutor:
             else:
                 self.mode = "local"
                 print("⚠️ Fallback to Local.")
+        elif choice == '3':
+            self.mode = "no-ai"
+            print("📂 File-only mode. Use 'scan' and 'read' to browse your materials.")
+            print("   Type 'connect' anytime to activate an AI brain.")
         else:
             self.mode = "local"
             print(f"✅ Connected to Local (Text: {LOCAL_TEXT_MODEL} | Vision: {LOCAL_VISION_MODEL}).")
+
+    def start(self):
+        print("🤖 Antigravity Tutor (Smart Engine v2)")
+        print("   Text Brain  → code & reasoning")
+        print("   Vision Brain → images, OCR, screenshots")
+        print("   File Reader → PDFs, code, text (instant)\n")
+
+        self.connect_brain()
 
         self.show_help()
 
@@ -330,8 +347,10 @@ class HybridTutor:
             if user_input.lower() in ['quit', 'exit']:
                 print("👋 See you next time!")
                 break
-            if user_input.lower() == 'switch':
-                if self.mode == "local":
+            if user_input.lower() in ['switch', 'connect']:
+                if self.mode == "no-ai":
+                    self.connect_brain()
+                elif self.mode == "local":
                     if self.setup_gemini():
                         self.mode = "cloud"
                     else:
@@ -339,7 +358,8 @@ class HybridTutor:
                         continue
                 else:
                     self.mode = "local"
-                print(f"🔄 Switched to {self.mode.upper()} mode.")
+                if self.mode not in ["no-ai"]:
+                    print(f"🔄 Switched to {self.mode.upper()} mode.")
                 self.show_models()
                 continue
             if user_input.lower() == 'models':
@@ -361,15 +381,16 @@ class HybridTutor:
                     result = self.read_file(read_path)
                     if result is None:
                         # Image file — route to vision
-                        if self.mode == "cloud":
+                        if self.mode == "no-ai":
+                            response = "⚠️ AI not connected. Type 'connect' to activate a brain for image analysis."
+                        elif self.mode == "cloud":
                             response = self.chat_vision_cloud(read_path, "Describe this image")
                         else:
                             response = self.chat_vision_local(read_path, "Describe this image")
                     else:
-                        # File content read — inject into chat and ask AI about it
                         response = result
-                        if not response.startswith("❌") and not response.startswith("⚠️"):
-                            # Also send to AI for analysis
+                        # Add AI summary if connected
+                        if self.mode != "no-ai" and not response.startswith("❌") and not response.startswith("⚠️"):
                             if self.mode == "cloud":
                                 ai_response = self.chat_cloud(f"I just loaded this file. Here's the content:\n\n{response}\n\nGive me a brief summary of what this file does.")
                             else:
@@ -378,15 +399,20 @@ class HybridTutor:
 
                 # ── Vision routing ──
                 elif self.parse_img_command(user_input):
-                    img_path, question = self.parse_img_command(user_input)
-                    if self.mode == "cloud":
-                        response = self.chat_vision_cloud(img_path, question)
+                    if self.mode == "no-ai":
+                        response = "⚠️ AI not connected. Type 'connect' to activate a brain for image analysis."
                     else:
-                        response = self.chat_vision_local(img_path, question)
+                        img_path, question = self.parse_img_command(user_input)
+                        if self.mode == "cloud":
+                            response = self.chat_vision_cloud(img_path, question)
+                        else:
+                            response = self.chat_vision_local(img_path, question)
 
                 # ── Text routing ──
                 else:
-                    if self.mode == "cloud":
+                    if self.mode == "no-ai":
+                        response = "⚠️ AI not connected. Type 'connect' to activate a brain, or use 'read' and 'scan' to browse files."
+                    elif self.mode == "cloud":
                         response = self.chat_cloud(user_input)
                     else:
                         response = self.chat_local(user_input)
