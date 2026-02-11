@@ -20,12 +20,13 @@ A **Split-Brain Router** that sends inputs to the right model:
 
 ## Recommended Vision Models (CPU-Friendly)
 
-| Model | Size | RAM | Token Speed (i9-10900) | Notes |
+| Model | Ollama Pull | RAM | Speed (tok/s) | Best For |
 |---|---|---|---|---|
-| Llama 3.2 Vision 1B (q4_0) | ~1 GB | ~1.2 GB | ~0.5-0.7 t/s | Fastest, lightest |
-| Llama 3.2 Vision 3B (q4_0) | ~2.5 GB | ~2.8 GB | ~0.35-0.45 t/s | Better accuracy |
-| LLaVA 1.5 7B (q4_0) | ~4 GB | ~4-5 GB | ~0.25-0.35 t/s | Strong VQA, via `ollama pull llava` |
-| Llama 3.2 Vision 11B (q4_0) | ~5-6 GB | ~7-9 GB | ~0.12-0.18 t/s | Best quality, slowest on CPU |
+| **Qwen2.5-VL 3B** ⭐ | `ollama pull qwen2.5vl:3b` | ~4 GB | ~0.45 | OCR, doc reading, general utility — **recommended** |
+| Moondream 2 | `ollama pull moondream` | ~2.5 GB | ~0.60 | Object detection, quick captions |
+| Llama 3.2 Vision 1B | `ollama pull llama3.2-vision:1b` | ~1.5 GB | ~0.80 | Basic classification, ultra-low latency |
+| Llama 3.2 Vision 11B | `ollama pull llama3.2-vision:11b` | ~10 GB | ~0.15 | Complex reasoning, highest accuracy |
+| LLaVA 7B | `ollama pull llava` | ~5 GB | ~0.30 | Strong VQA, well-tested |
 
 ## Implementation Notes
 

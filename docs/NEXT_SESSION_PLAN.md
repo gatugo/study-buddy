@@ -86,6 +86,80 @@ Choose your brain:
 
 ## ⚠️ Prerequisites Checklist
 
-- [ ] **Ollama running** (if using Local mode): Download from [ollama.com](https://ollama.com), then `ollama pull llama3.1`
 - [ ] **Gemini API key** (if using Cloud mode): Already in `.env` ✅
 - [ ] **Class 29 materials** ready to drop into `00_inbox/`
+
+---
+
+## 📥 Step 0: Download Local Models (Do This First)
+
+> Run these **before** Step 1. Downloads can be large — do them on good Wi-Fi.
+
+### Install Ollama
+
+If you don't have Ollama yet:
+
+1. Download from [ollama.com](https://ollama.com)
+2. Run the installer
+3. Verify it's running: `ollama --version`
+
+### Pull the Text Brain (Required for Local Mode)
+
+```bash
+ollama pull llama3.1
+```
+
+| Detail | Value |
+|---|---|
+| Model | Llama 3.1 8B (quantized) |
+| Size | ~4.7 GB download |
+| Use | All text/code questions in the tutor |
+
+### Pull a Vision Model (Split-Brain — Phase 2)
+
+> Pick **one** to start. You can always pull more later.
+
+```bash
+# ⭐ Recommended: Best balance for dev work on CPU
+ollama pull qwen2.5vl:3b
+```
+
+#### All Vision Model Options
+
+| Model | Pull Command | RAM | Speed (tok/s) | Best For |
+|---|---|---|---|---|
+| **Qwen2.5-VL 3B** ⭐ | `ollama pull qwen2.5vl:3b` | ~4 GB | ~0.45 | OCR, doc reading, general utility |
+| Moondream 2 | `ollama pull moondream` | ~2.5 GB | ~0.60 | Object detection, quick captions |
+| Llama 3.2 Vision 1B | `ollama pull llama3.2-vision:1b` | ~1.5 GB | ~0.80 | Basic classification, ultra-low latency |
+| Llama 3.2 Vision 11B | `ollama pull llama3.2-vision:11b` | ~10 GB | ~0.15 | Complex reasoning, highest accuracy |
+| LLaVA 7B | `ollama pull llava` | ~5 GB | ~0.30 | Strong VQA, well-tested |
+
+> **Tip:** Qwen2.5-VL 3B is recommended — small enough for your i9, smart enough for OCR and screenshots.
+
+### Verify Your Models
+
+```bash
+ollama list
+```
+
+You should see at minimum:
+```
+NAME              SIZE
+llama3.1:latest   4.7 GB
+llava:latest      4.7 GB   ← optional for now
+```
+
+---
+
+## 📸 Gemini Image-to-Text Capabilities
+
+> Gemini can read and extract text from images you upload to the chat.
+
+| Capability | Details |
+|---|---|
+| **Handwriting** | Reads handwritten notes (as long as they are reasonably legible) and types them out |
+| **Printed Text** | Extracts text from screenshots, photos of documents, or PDF pages |
+| **Translation** | Translates text in images directly from other languages |
+| **Formatting** | Preserves basic structure like lists or tables |
+
+**How to use:** Click the **Upload** button (usually a plus sign or image icon) and attach your image. Gemini will convert it to text immediately.
